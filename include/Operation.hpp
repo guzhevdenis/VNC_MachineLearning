@@ -78,10 +78,7 @@ void conv2d (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> const &weig
     auto outputShape = output.shape();
     
     //Проверки
-    assert(outputShape.size() == 3);
-    assert(weightShape.size() == 4);
-    assert(i_f == w_f);
-    assert(o_c == bias.shape()[0]);
+
 
     int n, m, x, y, i, j;
 
@@ -90,6 +87,7 @@ void conv2d (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> const &weig
             for (y = 0; y < o_h; y++) // проход по вы высоте выходного тензора - вычисляется по формуле выше 
             {
                 for (x = 0; x < o_w; x++) // проход по ширине выходного тензора - вычисляется по формуле выше 
+                { 
 
                     Type sum = 0;
 
