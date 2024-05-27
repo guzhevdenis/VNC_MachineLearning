@@ -35,4 +35,10 @@ void linear_operation (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> c
             output[i] = ReLU(output[i]);
         }
         
+        //Тестовые изменения для новой ветки
+        for ()
+        {
+
+        }
+        
 }
