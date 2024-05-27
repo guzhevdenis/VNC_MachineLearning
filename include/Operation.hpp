@@ -87,7 +87,7 @@ void conv2d (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> const &weig
             {
                 for (x = 0; x < o_w; x++) // output x
                 {
-                    dtype sum = 0;
+                    Type sum = 0;
 
                     for (m = 0; m < w_f; m++) // kernel fmap
                     {
@@ -95,7 +95,7 @@ void conv2d (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> const &weig
                         {
                             for (i = 0; i < w_w; i++) // kernel x
                             {
-                                
+
                                 Type inputWeight = input[to1D(m, (y + j), (x + i), i_w, i_h)];
                                 Type kernelWeight = weight[to1D(n, m, j, i, w_w, w_h, w_f)];
 
