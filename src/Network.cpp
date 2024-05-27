@@ -11,7 +11,7 @@ using namespace std;
 
 int main(void) {
     
-
+    int b = 0; 
     Tensor<int> Input = Tensor<int>(3,1);
     Tensor<int> Weights = Tensor<int>(6,3);
     Tensor<int> Bias = Tensor<int>(3,1);
