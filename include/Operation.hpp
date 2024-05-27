@@ -1,9 +1,25 @@
 #include <cmath>
 #include "Tensor.hpp"
 #include "Activation.hpp"
-//Перемножение матриц. Применение полносвязного слоя 
+
+template <typename Type>
+void conv2d (Tensor<Type> &input, Tensor<Type> &ouput, Tensor<Type> const &weight, Tensor<Type> const &bias)
 template <typename Type>
 void linear_operation (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> const &weight, Tensor<Type> const &bias);
+
+int to1D(int z, int y, int x, int xSize, int ySize);
+int to1D(int f, int z, int y, int x, int xSize, int ySize, int zSize);
+
+int to1D(int z, int y, int x, int xSize, int ySize)
+{
+    return (ySize * xSize * z) + (xSize * y) + x;
+}
+
+int to1D(int f, int z, int y, int x, int xSize, int ySize, int zSize)
+{
+    return (ySize * zSize * xSize * f) + (ySize * xSize * z) + (xSize * y) + x;
+}
+
 template <typename Type>
 void linear_operation (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> const &weight, Tensor<Type> const &bias)
 {
@@ -38,7 +54,7 @@ void linear_operation (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> c
 }
 
 template <typename Type>
-void conv2d (Tensor<Type> &input, Tensor<Type> &ouput, Tensor<Type> const &weight, Tensor<Type> const &bias)
+void conv2d (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> const &weight, Tensor<Type> const &bias)
 {
     auto inputShape = input.shape();
     int i_w = inputShape[0];
@@ -79,6 +95,7 @@ void conv2d (Tensor<Type> &input, Tensor<Type> &ouput, Tensor<Type> const &weigh
                         {
                             for (i = 0; i < w_w; i++) // kernel x
                             {
+                                
                                 Type inputWeight = input[to1D(m, (y + j), (x + i), i_w, i_h)];
                                 Type kernelWeight = weight[to1D(n, m, j, i, w_w, w_h, w_f)];
 

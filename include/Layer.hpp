@@ -55,7 +55,7 @@ class ConvLayer : public Layer <Type>
     public:
         ConvLayer(int fmapSize, int kernelSize, int channelSize)
         {
-            weight = Tensor<Type>(kernelsize, kernelsize, fmapSize, channelSize);
+            weight = Tensor<Type>(kernelSize, kernelSize, fmapSize, channelSize);
             weight.randam();
             bias = Tensor<Type>(channelSize);
             bias.randam();
