@@ -3,7 +3,7 @@
 #include "Activation.hpp"
 
 template <typename Type>
-void conv2d (Tensor<Type> &input, Tensor<Type> &ouput, Tensor<Type> const &weight, Tensor<Type> const &bias)
+void conv2d (Tensor<Type> &input, Tensor<Type> &ouput, Tensor<Type> const &weight, Tensor<Type> const &bias);
 template <typename Type>
 void linear_operation (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> const &weight, Tensor<Type> const &bias);
 
@@ -67,9 +67,13 @@ void conv2d (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> const &weig
     int w_f = weightShape[2]; //fmap
     int w_c = weightShape[3]; //channel 
 
+    //Вычисление размеров выходного тензора (с шагом прохождения - 1, без паддингов)
     int o_w = i_w - w_w + 1; 
     int o_h = i_h - w_h + 1; 
+    //Глубина свертки - равна количеству фильтров
     int o_c = w_c; 
+
+    //Выходной тензор для свертки 
     output = Tensor<Type> (o_w, o_h, o_c);
     auto outputShape = output.shape();
     
@@ -81,31 +85,35 @@ void conv2d (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> const &weig
 
     int n, m, x, y, i, j;
 
-    for (n = 0; n < o_c; n++) // output channel
+    for (n = 0; n < o_c; n++) // проход по количеству фильтров - по глубине выходного тензора 
         {
-            for (y = 0; y < o_h; y++) // output y
+            for (y = 0; y < o_h; y++) // проход по вы высоте выходного тензора - вычисляется по формуле выше 
             {
-                for (x = 0; x < o_w; x++) // output x
-                {
+                for (x = 0; x < o_w; x++) // проход по ширине выходного тензора - вычисляется по формуле выше 
+
                     Type sum = 0;
 
-                    for (m = 0; m < w_f; m++) // kernel fmap
+                    // В следующих трех циклах считается единичный элемент свертки. Каждое значение в фильтре перемножается
+                    // на каждое значение в соответсвующем входном изображении и суммируется 
+                    for (m = 0; m < w_f; m++) // проход по количеству каналов изображений и фильтров (по дефолту - 3)
                     {
-                        for (j = 0; j < w_h; j++) // kernel y
+                        for (j = 0; j < w_h; j++) // проход по высоте фильтров 
                         {
-                            for (i = 0; i < w_w; i++) // kernel x
+                            for (i = 0; i < w_w; i++) // проход по ширине фильтров - по дефолту равны высоте 
                             {
 
-                                Type inputWeight = input[to1D(m, (y + j), (x + i), i_w, i_h)];
-                                Type kernelWeight = weight[to1D(n, m, j, i, w_w, w_h, w_f)];
-
+                                Type inputWeight = input[to1D(m, (y + j), (x + i), i_w, i_h)]; //Вычисляется элемент из входного изображения (поскольку в тензоре данные в линейной форме нужно найти необходимый индекс)
+                                Type kernelWeight = weight[to1D(n, m, j, i, w_w, w_h, w_f)]; //Вычисляется элемент из фильтра 
+                                //Элементы перемножаются и суммируются 
                                 sum += inputWeight * kernelWeight;
                             }
                         }
                     }
 
                     {
+                        //Прибавляетс смещение 
                         sum += bias[n];
+                        //Полученная сумма записывается в выходной тензор
                         output[to1D(n, y, x, o_w, o_h)] += ReLU(sum);
                     }
                 }
