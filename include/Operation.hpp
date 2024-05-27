@@ -36,3 +36,64 @@ void linear_operation (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> c
         }
         
 }
+
+template <typename Type>
+void conv2d (Tensor<Type> &input, Tensor<Type> &ouput, Tensor<Type> const &weight, Tensor<Type> const &bias)
+{
+    auto inputShape = input.shape();
+    int i_w = inputShape[0];
+    int i_h = inputShape[1];
+    int i_f = inputShape[2]; //fmap 
+
+    auto weightShape = weight.shape();
+    int w_w = weightShape[0];
+    int w_h = weightShape[1];
+    int w_f = weightShape[2]; //fmap
+    int w_c = weightShape[3]; //channel 
+
+    int o_w = i_w - w_w + 1; 
+    int o_h = i_h - w_h + 1; 
+    int o_c = w_c; 
+    output = Tensor<Type> (o_w, o_h, o_c);
+    auto outputShape = output.shape();
+    
+    //Проверки
+    assert(outputShape.size() == 3);
+    assert(weightShape.size() == 4);
+    assert(i_f == w_f);
+    assert(o_c == bias.shape()[0]);
+
+    int n, m, x, y, i, j;
+
+    for (n = 0; n < o_c; n++) // output channel
+        {
+            for (y = 0; y < o_h; y++) // output y
+            {
+                for (x = 0; x < o_w; x++) // output x
+                {
+                    dtype sum = 0;
+
+                    for (m = 0; m < w_f; m++) // kernel fmap
+                    {
+                        for (j = 0; j < w_h; j++) // kernel y
+                        {
+                            for (i = 0; i < w_w; i++) // kernel x
+                            {
+                                Type inputWeight = input[to1D(m, (y + j), (x + i), i_w, i_h)];
+                                Type kernelWeight = weight[to1D(n, m, j, i, w_w, w_h, w_f)];
+
+                                sum += inputWeight * kernelWeight;
+                            }
+                        }
+                    }
+
+                    {
+                        sum += bias[n];
+                        output[to1D(n, y, x, o_w, o_h)] += ReLU(sum);
+                    }
+                }
+            }
+        }
+
+    
+}
