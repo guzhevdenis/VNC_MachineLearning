@@ -43,4 +43,46 @@ class Linear : public Layer<Type>
     }
 
         
+};
+
+template <typename Type>
+class ConvLayer : public Layer <Type>
+{
+    private:
+        Tensor<Type> weight;
+        Tensor<Type> bias;
+
+    public:
+        ConvLayer(int fmapSize, int kernelSize, int channelSize)
+        {
+            weight = Tensor<Type>(kernelsize, kernelsize, fmapSize, channelSize);
+            weight.randam();
+            bias = Tensor<Type>(channelSize);
+            bias.randam();
+        }
+        ~ConvLayer() = default;
+
+        void forward (Tensor<Type> &input, Tensor<Type> &out) const override 
+        {
+            auto inputShape input.shape();
+            int x = iputShape[0], y = inputShape[1], z = inputShape[2];
+
+            Tensor<Type> newTensor(x+2, y+2, z);
+            auto newShape = newTensor.shape();
+
+            for (int k = 0; k < z; k++)
+            {
+                for (int j = 0; j < y; j++)
+                {
+                    for(int i = 0; i < x; i++)
+                    {
+                        int newId = to1D(k, j+1, i+1, x+2, y);
+                        int oldId = to1D(k, j, i, x, y);
+                        newTensor[newId] = input[oldId];
+                    }
+                }
+            }
+            cond2d<Type>(newTensor, out, weight, bias);
+        }
+
 }
