@@ -87,4 +87,32 @@ class ConvLayer : public Layer <Type>
         }
 
 };
+
+template <typename Type>
+class BatchNorm: public Layer <Type>
+{
+    private:
+        Tensor<Type> weights;
+        Tensor<Type> bias;
+    public:
+    //Нормализация происходит вдоль цветовых каналов (то есть для каждого канала считается свое среднее и вариация)
+    BatchNorm(int channelSize)
+        {
+            weights = Tensor<Type>(channelSize);
+            bias = Tensor<Type>(channelSize);
+
+            weights.randam();
+            bias.randam();
+        }
+    
+    ~BatchNorm() = default;
+
+    void forward (Tensor<Type> &input, Tensor<Type> &output) const  override
+
+    {
+        batch_norm<Type>(input, output, weights, bias);
+    }
+
+
+};
 #endif
