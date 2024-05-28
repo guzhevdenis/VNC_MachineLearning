@@ -12,11 +12,13 @@ void linear_operation (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> c
 int to1D(int z, int y, int x, int xSize, int ySize);
 int to1D(int f, int z, int y, int x, int xSize, int ySize, int zSize);
 
+//для трехмерного тензора
 int to1D(int z, int y, int x, int xSize, int ySize)
 {
     return (ySize * xSize * z) + (xSize * y) + x;
 }
 
+// для четырех мернгого тензора 
 int to1D(int f, int z, int y, int x, int xSize, int ySize, int zSize)
 {
     return (ySize * zSize * xSize * f) + (ySize * xSize * z) + (xSize * y) + x;
@@ -127,4 +129,65 @@ void conv2d (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> const &weig
 
     
 }
+
+template <typename Type>
+void batch_norm (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> const &weights, Tensor<Type> const &bias)
+{
+    int channel_number = input.shape[2];
+    int height = input.shape[1];
+    int width = input.shape[0];
+
+    for (int i = 0; i < channel_number; i++) //проход по каналам (среднее для каждого канала и считаем)
+    {
+        Type sum = 0;
+        Type mean = 0; 
+        Type dispersion = 0;
+        double epsilon = 0.0000001 //для избежания деления на ноль 
+
+        //sum = bias[i];
+        //Вычисление среднего 
+        for (int j = 0; j < height; j++ )
+        {
+            for (int k = 0; k < width; k++)
+            {
+                sum += input[to1D(i,j,k,width,height)]; 
+            }  
+        }
+        
+        mean = sum / (width * height);
+        
+
+        //Вычисление дисперсии
+        for (int j = 0; j < height; j++ )
+        {
+            for (int k = 0; k < width; k++)
+            {
+                dispersion += (input[to1D(i,j,k,width,height)] - mean) * (input[to1D(i,j,k,width,height)] - mean) ; 
+            }  
+        }
+
+        dispersion = dispersion/ (width * height);
+
+        //Нормализация 
+        for (int j = 0; j < height; j++ )
+        {
+            for (int k = 0; k < width; k++)
+            {
+               output[1to1D(i,j,k,width, height)] = (input[1to1D(i,j,k,width, height)] - mean) / sqrt(dispersion + epsilon); 
+            }  
+        }
+
+        //Масштабирование и сдвиг 
+         for (int j = 0; j < height; j++ )
+        {
+            for (int k = 0; k < width; k++)
+            {
+               output[1to1D(i,j,k,width, height)] = output[1to1D(i,j,k,width, height)] * weights[i]+bias[i]; 
+            }  
+        }
+
+        
+    }
+}
+
 #endif 
