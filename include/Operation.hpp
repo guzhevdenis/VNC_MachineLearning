@@ -1,3 +1,5 @@
+#ifndef OPERATION_H
+#define OPERATION_H
 #include <cmath>
 #include "Tensor.hpp"
 #include "Activation.hpp"
@@ -80,7 +82,12 @@ void conv2d (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> const &weig
     //Проверки
 
 
-    int n, m, x, y, i, j;
+    int n, //счетчик количества фильтров - глубины выходного тензора 
+        m, //счетчик количества каналов изображения -  чаще всего 3 (RGB)
+        x, //счетчик ширины выходного тензора - по формуле выше 
+        y, //счетчик высоты выходного тензора - по формуле выше 
+        i, //счетчик ширины фильтра - чаще всего 3 (равен высоте)
+        j; //счетчик высоты фильтра 
 
     for (n = 0; n < o_c; n++) // проход по количеству фильтров - по глубине выходного тензора 
         {
@@ -120,3 +127,4 @@ void conv2d (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> const &weig
 
     
 }
+#endif 

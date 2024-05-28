@@ -2,7 +2,7 @@ TARGET = Network
 SRC = Network.cpp 
 
 
-CC := g++
+CC := g++ 
 LIBS := -lpthread 
 LIBS_DIR = 
 LDFLAGS :=  -Wall -g 
@@ -17,4 +17,4 @@ $(TARGET): $(SRC)
 	$(CC) $(LIBS_DIR) $(LIBS) $(LDFLAGS) $(INCLUDE_DIRS) $(LINK) -o  $(TARGET_DIR)/$(TARGET)  $(SRC) 
 
 clean: 
-	rm $(TARGET)
+	rm  $(TARGET_DIR)/$(TARGET)

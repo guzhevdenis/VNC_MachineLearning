@@ -1,5 +1,7 @@
 //Realization of Network layers 
 
+#ifndef LAYER_H
+#define LAYER_H
 #include <cstdlib>
 #include <iostream>
 #include <string>
@@ -8,14 +10,10 @@
 template <typename Type>
 class Layer 
 {
-    private:
-        std::string name;
 
     public: 
         virtual ~Layer(){};
-
-        virtual std::string getName() const = 0; 
-        virtual void forward(Type &input, Type &output) const = 0;
+        virtual void forward(Tensor<Type> &input, Tensor<Type> &output) const = 0;
 
 };
 
@@ -35,7 +33,7 @@ class Linear : public Layer<Type>
             weight = 0;
             bias = 0;
         }
-        ~Linear() default;
+        ~Linear() = default;
         
     void forward(Type &input, Type &output) const override
     {
@@ -62,10 +60,12 @@ class ConvLayer : public Layer <Type>
         }
         ~ConvLayer() = default;
 
-        void forward (Tensor<Type> &input, Tensor<Type> &out) const override 
+        void forward (Tensor<Type> &input, Tensor<Type> &out) const  override
         {
-            auto inputShape input.shape();
-            int x = iputShape[0], y = inputShape[1], z = inputShape[2];
+            auto inputShape = input.shape();
+            int x = inputShape[0];
+            int  y = inputShape[1];
+            int z = inputShape[2];
 
             Tensor<Type> newTensor(x+2, y+2, z);
             auto newShape = newTensor.shape();
@@ -82,7 +82,9 @@ class ConvLayer : public Layer <Type>
                     }
                 }
             }
-            cond2d<Type>(newTensor, out, weight, bias);
+
+            conv2d<Type>(newTensor, out, weight, bias);
         }
 
-}
+};
+#endif
