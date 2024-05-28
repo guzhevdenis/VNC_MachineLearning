@@ -13,14 +13,14 @@ int main(void) {
     
 
     std::cout<< "Программа по применению нейронной сети" << std::endl;
-    auto input = Tensor<int>(224,224,3);
-    Tensor<int> output;
+    auto input = Tensor<int>(5,5,3);
+    auto output = Tensor<int> (5,5,3);
 
     input.randam();
 
     auto network = Network<int>();
     
-    auto *layer1_1 = new ConvLayer<int>(3,3,64);
+    auto *layer1_1 = new BatchNorm<int>(3);
     network.addLayer(layer1_1);
     network.predict(input, output);
 
