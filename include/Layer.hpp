@@ -140,8 +140,6 @@ class Upsampling: public Layer <Type>
                 upscale_nearest_neighbour(scale, input, output);
             }  
         }
-
-
-}
+};
 
 #endif

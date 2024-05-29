@@ -193,4 +193,49 @@ void batch_norm (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> const &
     }
 }
 
+template <typename Type>
+void upscale_nearest_neighbour (int scale, Tensor<Type> &input, Tensor<Type> &output)
+{
+    int channel_number = input.shape()[2];
+    int height = input.shape()[1];
+    int width = input.shape()[0];
+
+    //Высота и ширина изображения остается без изменений 
+    int o_w = width * scale; 
+    int o_h = height * scale; 
+
+    //Количество канал остается без изменений
+    int o_c = channel_number; 
+
+    //Выходной тензор после апскейлинга 
+    output = Tensor<Type> (o_w, o_h, o_c);
+    auto outputShape = output.shape();
+
+    //Потенциально место для оптимизации - распараллеливание вложенных циклов 
+    for (int ch = 0; ch < channel_number; ch++)
+    {
+        for (int i = 0; i < height; i++) //Проход по высоте входного тензора 
+        {
+            for (int j = 0; j < width; j++) //Проход по ширине входного тензора 
+            {
+                //Каждый элемент входного массива a_ij должен продублироваться scale*scale раз в выходном тензоре 
+                int k = j*scale;
+                while (k<=scale*(j+1))
+                {
+                    output[to1D(ch, i*scale, k, width, height)] = input[[to1D(ch, i, j, width, height)]];
+                }
+                k = i*scale;
+                while (k<=scale*(i+1))
+                {
+                    output[to1D(ch, k, j*scale, width, height)];
+                }
+        
+            }
+        }
+    }
+
+
+
+
+}
 #endif 
