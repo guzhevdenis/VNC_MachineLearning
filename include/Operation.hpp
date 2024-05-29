@@ -219,17 +219,16 @@ void upscale_nearest_neighbour (int scale, Tensor<Type> &input, Tensor<Type> &ou
             for (int j = 0; j < width; j++) //Проход по ширине входного тензора 
             {
                 //Каждый элемент входного массива a_ij должен продублироваться scale*scale раз в выходном тензоре 
-                int k = j*scale;
-                while (k<=scale*(j+1))
+                
+                 for (int m = i*scale; m < (i+1)*scale; ++m)
                 {
-                    output[to1D(ch, i*scale, k, width, height)] = input[[to1D(ch, i, j, width, height)]];
+                     for (int k = j*scale; k <(j+1)*scale; ++k)
+                    {
+                  
+                           output[to1D(ch, m ,k , width*scale, height*scale)] = input[to1D(ch, i, j, width, height)];
+                    }
                 }
-                k = i*scale;
-                while (k<=scale*(i+1))
-                {
-                    output[to1D(ch, k, j*scale, width, height)];
-                }
-        
+         
             }
         }
     }

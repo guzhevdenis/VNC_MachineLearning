@@ -13,15 +13,21 @@ int main(void) {
     
 
     std::cout<< "Программа по применению нейронной сети" << std::endl;
-    auto input = Tensor<int>(5,5,3);
-    auto output = Tensor<int> (5,5,3);
+    auto input = Tensor<int>(2,2,3);
+    auto output = Tensor<int> (4,4,3);
 
-    input.randam();
-
+    std::vector<int> a;
+    for (int i = 0; i < 2*2*3; i++)
+    {
+        a.push_back(i);
+    }
+    input.get_data(a);
+    std::cout << input << std::endl;
     auto network = Network<int>();
     
-    auto *layer1_1 = new BatchNorm<int>(3);
+    auto *layer1_1 = new Upsampling<int>(2);
     network.addLayer(layer1_1);
+    std::cout << "После upscaling" << std::endl;
     network.predict(input, output);
 
     std::cout << output << std::endl;
