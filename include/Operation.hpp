@@ -211,7 +211,7 @@ void upscale_nearest_neighbour (int scale, Tensor<Type> &input, Tensor<Type> &ou
     output = Tensor<Type> (o_w, o_h, o_c);
     auto outputShape = output.shape();
 
-    //Потенциально место для оптимизации - распараллеливание вложенных циклов 
+    //Потенциальное место для оптимизации - распараллеливание вложенных циклов 
     for (int ch = 0; ch < channel_number; ch++)
     {
         for (int i = 0; i < height; i++) //Проход по высоте входного тензора 
@@ -220,9 +220,9 @@ void upscale_nearest_neighbour (int scale, Tensor<Type> &input, Tensor<Type> &ou
             {
                 //Каждый элемент входного массива a_ij должен продублироваться scale*scale раз в выходном тензоре 
                 
-                 for (int m = i*scale; m < (i+1)*scale; ++m)
+                 for (int m = i*scale; m < (i+1)*scale; ++m) //проход по нужным ячейкам выходного тензора m - номер строки
                 {
-                     for (int k = j*scale; k <(j+1)*scale; ++k)
+                     for (int k = j*scale; k <(j+1)*scale; ++k) //проход по нужным ячейкам выходного тенхора k - номер столбца
                     {
                   
                            output[to1D(ch, m ,k , width*scale, height*scale)] = input[to1D(ch, i, j, width, height)];
