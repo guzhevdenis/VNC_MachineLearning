@@ -7,6 +7,10 @@
 #include <string>
 #include "Operation.hpp"
 
+enum Scaling {
+    nearest_neighbour = 1
+};
+
 template <typename Type>
 class Layer 
 {
@@ -115,4 +119,29 @@ class BatchNorm: public Layer <Type>
 
 
 };
+
+template <typename Type>
+class Upsampling: public Layer <Type>
+{
+    private: 
+        int scale; 
+        Scaling type_of_scaling;
+    public: 
+        Upsampling (int scale_m): scale(scale_m), type_of_scaling(nearest_neighbour)
+        {
+            
+        }
+        ~Upsampling() = default; 
+
+        void forward (Tensor<Type> &input, Tensor<Type> &output) const  override
+        {
+            if (type_of_scaling == nearest_neighbour)
+            {
+                upscale_nearest_neighbour(scale, input, output);
+            }  
+        }
+
+
+}
+
 #endif

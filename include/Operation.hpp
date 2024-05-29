@@ -27,31 +27,34 @@ int to1D(int f, int z, int y, int x, int xSize, int ySize, int zSize)
 template <typename Type>
 void linear_operation (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> const &weight, Tensor<Type> const &bias)
 {
-        //Определяем размерность тензора (размерность бубдет представлена в виде вектора)
+        //Определяем размерность тензора (размерность будет представлена в виде вектора - в нашем случае это будет одно число 24 или 48)
         auto inputShape = input.shape();
 
         //Определяем количество данных 
         auto inputLength = input.data().size();
 
-        //Определяем массив весов 
+        //Определяем массив весов  - получаем размерность весов (в нашем случае будет 48*9216)
         auto weightShape = weight.shape();
 
-        //Размер выходного тензор должен согласовываться с размером весов
+        //Размер выходного тензор должен согласовываться с размером весов (в нашем случае будет 9216)
         int outputSize = weightShape[1];
+
         output = Tensor<Type>(outputSize);
 
         
         //Перемножение матриц как вложенные циклы (надо оптимизировать - параллелить)
-        for (int i = 0; i < outputSize; i++)
+        for (int i = 0; i < outputSize; i++) // проход по каждому выходному элементу - 9216 штук 
         {
             //Сначала помещаем смещение
             output[i] = bias[i];
 
             //Применяем итоговую формулу
-            for (int k = 0; k < inputLength; k++)
+            for (int k = 0; k < inputLength; k++) // проход по каждому входному элементу 48 штук
             {
                 output[i] += input[k] * weight[i + outputSize * k];
             }
+
+            //применение функции активации - может быть добавлена отделным слоем
             output[i] = ReLU(output[i]);
         }
         
@@ -121,7 +124,7 @@ void conv2d (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> const &weig
                         //Прибавляетс смещение 
                         sum += bias[n];
                         //Полученная сумма записывается в выходной тензор
-                        output[to1D(n, y, x, o_w, o_h)] += ReLU(sum);
+                        output[to1D(n, y, x, o_w, o_h)] += sum;
                     }
                 }
             }
@@ -182,7 +185,7 @@ void batch_norm (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> const &
         {
             for (int k = 0; k < width; k++)
             {
-               output[to1D(i,j,k,width, height)] = output[to1D(i,j,k,width, height)] * weights[i]+bias[i]; 
+               output[to1D(i,j,k,width, height)] = ReLU(output[to1D(i,j,k,width, height)] * weights[i]+bias[i]); 
             }  
         }
 
