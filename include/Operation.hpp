@@ -9,9 +9,15 @@ void conv2d (Tensor<Type> &input, Tensor<Type> &ouput, Tensor<Type> const &weigh
 template <typename Type>
 void linear_operation (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> const &weight, Tensor<Type> const &bias);
 
+int to1D(int y, int x, int xSize);
 int to1D(int z, int y, int x, int xSize, int ySize);
 int to1D(int f, int z, int y, int x, int xSize, int ySize, int zSize);
 
+//для двумерного тензора 
+int to1D(int y, int x, int xSize)
+{
+    return (xSize*y)+x;
+}
 //для трехмерного тензора
 int to1D(int z, int y, int x, int xSize, int ySize)
 {
@@ -104,7 +110,7 @@ void conv2d (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> const &weig
                     Type sum = 0;
 
                     // В следующих трех циклах считается единичный элемент свертки. Каждое значение в фильтре перемножается
-                    // на каждое значение в соответсвующем входном изображении и суммируется 
+                    // на каждое значение в соответствующем входном изображении и суммируется 
                     for (m = 0; m < w_f; m++) // проход по количеству каналов изображений и фильтров (по дефолту - 3)
                     {
                         for (j = 0; j < w_h; j++) // проход по высоте фильтров 
@@ -233,7 +239,35 @@ void upscale_nearest_neighbour (int scale, Tensor<Type> &input, Tensor<Type> &ou
         }
     }
 
+}
 
+//Только для квадратного ядра 
+template <typename Type>
+void ConvTranspose2D (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> const &weights, Tensor<Type> const &bias)
+{
+    //stride = 1, padding = 0
+    int height_input = input.shape()[1];
+    int width_input = input.shape()[0];
+    int height_output = output.shape()[1];
+    int width_output = output.shape()[0];
+
+    //Учитываем, что высота и ширина ядра совпадают
+    int kernel_size = weights.shape()[0];
+
+    for (int i = 0; i < width_output; i++) //Проход по ширине выходного тензора
+    {
+        for (int j = 0; j < height_output; j++) //Проход по высоте выходного тензора 
+        {
+            //Проход по ядру 
+            for (int k = 0; k < kernel_size; k++) //Проход по ширине ядра 
+            {
+                for (int m = 0; m < kernel_size; m++) //Проход по высоте ядра 
+                {
+                     output[to1D(i+k,j+m,width_output)] += input[to1D(i,j, width_input)]*weightsinput[to1D(k,m, kernel_size)];
+                }
+            }
+        }
+    }
 
 
 }

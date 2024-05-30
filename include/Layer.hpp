@@ -159,7 +159,7 @@ class ConvTranspose2D: public Layer <Type>
             bias.randam();
         }
     
-    ~BatchNorm() = default;
+    ~ConvTranspose2D() = default;
 
     void forward (Tensor<Type> &input, Tensor<Type> &output) const  override
 
