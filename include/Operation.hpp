@@ -257,20 +257,30 @@ void conv_transpose_2d (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> 
     //Идея позаимствована отсюда
     //https://classic.d2l.ai/chapter_computer-vision/transposed-conv.html
 
-    //Проход по ядру 
+    //Очередное место для оптимизации
     for (int k = 0; k < width_input; k++) //Проход по ширине входного  
     {
             for (int m = 0; m < height_input; m++) //Проход по высоте входного 
             {
-                    for (int i = 0; i < kernel_size; i++) //Проход по ширине выходного тензора
+                    for (int i = 0; i < kernel_size; i++) //Проход по ширине ядра
                     {
-                            for (int j = 0; j < kernel_size; j++) //Проход по высоте выходного тензора 
+                            for (int j = 0; j < kernel_size; j++) //Проход по высоте ядра
                             {
                                 output[to1D(i+k,j+m,width_output)] += input[to1D(i,j, width_input)]*weights[to1D(k,m, kernel_size)];
                             }
                     }
             }
     }
+
+    //ReLU activation
+    for (int i = 0; i < width_output; i++) //Проход по ширине выходного тензора
+    {
+        for (int j = 0; j < height_output; j++) //Проход по высоте выходного тензора 
+        {
+            output[to1D(j,i,width_output)] = ReLU(output[to1D(j,i,width_output)]);
+        }
+    }
+
 
 
 }
