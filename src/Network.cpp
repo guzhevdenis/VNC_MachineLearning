@@ -14,7 +14,7 @@ int main(void) {
 
     std::cout<< "Программа по применению нейронной сети" << std::endl;
     auto input = Tensor<int>(2,2,3);
-    auto output = Tensor<int> (4,4,3);
+    auto output = Tensor<int> (6,6,3);
 
     std::vector<int> a;
     for (int i = 0; i < 2*2*3; i++)
@@ -25,7 +25,7 @@ int main(void) {
     std::cout << input << std::endl;
     auto network = Network<int>();
     
-    auto *layer1_1 = new Upsampling<int>(2);
+    auto *layer1_1 = new Upsampling<int>(3);
     network.addLayer(layer1_1);
     std::cout << "После upscaling" << std::endl;
     network.predict(input, output);

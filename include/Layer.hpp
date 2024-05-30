@@ -142,4 +142,32 @@ class Upsampling: public Layer <Type>
         }
 };
 
+//Transposed Convolution -  Повышает размерность изображения
+template <typename Type>
+class ConvTranspose2D: public Layer <Type>
+{
+    private:
+        Tensor<Type> weights;
+        Tensor<Type> bias;
+    public:
+    
+    ConvTranspose2D(int channelSize)
+        {
+            weights = Tensor<Type>(channelSize);
+            bias = Tensor<Type>(channelSize);
+            weights.randam();
+            bias.randam();
+        }
+    
+    ~BatchNorm() = default;
+
+    void forward (Tensor<Type> &input, Tensor<Type> &output) const  override
+
+    {
+        conv_transpose_2d<Type>(input, output, weights, bias);
+    }
+
+
+};
+
 #endif
