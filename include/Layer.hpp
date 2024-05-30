@@ -148,15 +148,12 @@ class ConvTranspose2D: public Layer <Type>
 {
     private:
         Tensor<Type> weights;
-        Tensor<Type> bias;
+        Tensor<Type> bias = 0;
     public:
     
-    ConvTranspose2D(int channelSize)
+    ConvTranspose2D(Tensor<Type> weights):weights(weights)
         {
-            weights = Tensor<Type>(channelSize);
-            bias = Tensor<Type>(channelSize);
-            weights.randam();
-            bias.randam();
+
         }
     
     ~ConvTranspose2D() = default;

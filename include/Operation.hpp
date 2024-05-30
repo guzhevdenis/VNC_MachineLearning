@@ -24,7 +24,7 @@ int to1D(int z, int y, int x, int xSize, int ySize)
     return (ySize * xSize * z) + (xSize * y) + x;
 }
 
-// для четырех мернгого тензора 
+// для четырехмерного тензора 
 int to1D(int f, int z, int y, int x, int xSize, int ySize, int zSize)
 {
     return (ySize * zSize * xSize * f) + (ySize * xSize * z) + (xSize * y) + x;
@@ -241,9 +241,9 @@ void upscale_nearest_neighbour (int scale, Tensor<Type> &input, Tensor<Type> &ou
 
 }
 
-//Только для квадратного ядра 
+//Обратная свертка 
 template <typename Type>
-void ConvTranspose2D (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> const &weights, Tensor<Type> const &bias)
+void conv_transpose_2d (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> const &weights, Tensor<Type> const &bias)
 {
     //stride = 1, padding = 0
     int height_input = input.shape()[1];
@@ -254,19 +254,22 @@ void ConvTranspose2D (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> co
     //Учитываем, что высота и ширина ядра совпадают
     int kernel_size = weights.shape()[0];
 
-    for (int i = 0; i < width_output; i++) //Проход по ширине выходного тензора
+    //Идея позаимствована отсюда
+    //https://classic.d2l.ai/chapter_computer-vision/transposed-conv.html
+
+    //Проход по ядру 
+    for (int k = 0; k < width_input; k++) //Проход по ширине входного  
     {
-        for (int j = 0; j < height_output; j++) //Проход по высоте выходного тензора 
-        {
-            //Проход по ядру 
-            for (int k = 0; k < kernel_size; k++) //Проход по ширине ядра 
+            for (int m = 0; m < height_input; m++) //Проход по высоте входного 
             {
-                for (int m = 0; m < kernel_size; m++) //Проход по высоте ядра 
-                {
-                     output[to1D(i+k,j+m,width_output)] += input[to1D(i,j, width_input)]*weightsinput[to1D(k,m, kernel_size)];
-                }
+                    for (int i = 0; i < kernel_size; i++) //Проход по ширине выходного тензора
+                    {
+                            for (int j = 0; j < kernel_size; j++) //Проход по высоте выходного тензора 
+                            {
+                                output[to1D(i+k,j+m,width_output)] += input[to1D(i,j, width_input)]*weights[to1D(k,m, kernel_size)];
+                            }
+                    }
             }
-        }
     }
 
 
