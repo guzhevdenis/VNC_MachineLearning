@@ -25,23 +25,19 @@ template <typename Type>
 class Linear : public Layer<Type>
 {
     private:
-        Type weight; 
+        Type weights; 
         Type bias;
-        int inputSize; 
-        int outputSize;
-
     public:
-    Linear (int inputSize, int outputSize)
-        : inputSize{inputSize}, outputSize{outputSize}
+    Linear (Tensor<Type> weights, Tensor<Type> bias)
+        : weights{weights}, bias{bias}
         {
-            weight = 0;
-            bias = 0;
+
         }
         ~Linear() = default;
         
-    void forward(Type &input, Type &output) const override
+    void forward(Tensor<Type> &input, Tensor<Type> &output) const override
     {
-        linear_operation(input, output, weight, bias);
+        linear_operation(input, output, weights, bias);
     }
 
         
@@ -51,16 +47,12 @@ template <typename Type>
 class ConvLayer : public Layer <Type>
 {
     private:
-        Tensor<Type> weight;
+        Tensor<Type> weights;
         Tensor<Type> bias;
 
     public:
-        ConvLayer(int fmapSize, int kernelSize, int channelSize)
+        ConvLayer(Tensor<Type> weights, Tensor<Type> bias): weights{weights}, bias{bias}
         {
-            weight = Tensor<Type>(kernelSize, kernelSize, fmapSize, channelSize);
-            weight.randam();
-            bias = Tensor<Type>(channelSize);
-            bias.randam();
         }
         ~ConvLayer() = default;
 
@@ -87,7 +79,7 @@ class ConvLayer : public Layer <Type>
                 }
             }
 
-            conv2d<Type>(newTensor, out, weight, bias);
+            conv2d<Type>(newTensor, out, weights, bias);
         }
 
 };
@@ -100,13 +92,9 @@ class BatchNorm: public Layer <Type>
         Tensor<Type> bias;
     public:
     //Нормализация происходит вдоль цветовых каналов (то есть для каждого канала считается свое среднее и вариация)
-    BatchNorm(int channelSize)
+    BatchNorm(Tensor<Type> weights, Tensor<Type> bias): weights{weights}, bias{bias}
         {
-            weights = Tensor<Type>(channelSize);
-            bias = Tensor<Type>(channelSize);
 
-            weights.randam();
-            bias.randam();
         }
     
     ~BatchNorm() = default;
