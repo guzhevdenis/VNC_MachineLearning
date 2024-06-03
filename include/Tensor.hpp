@@ -199,5 +199,13 @@
                 mData[i] = input_data[i];
             }
         }
+
+        void ReLU ()
+        {
+            for (int i = 0; i <mData.size(); i++)
+            {
+                mData[i] = ReLU[i];
+            }
+        }
     };
 #endif

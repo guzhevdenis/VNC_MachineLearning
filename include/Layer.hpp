@@ -25,8 +25,8 @@ template <typename Type>
 class Linear : public Layer<Type>
 {
     private:
-        Type weights; 
-        Type bias;
+        Tensor<Type> weights; 
+        Tensor<Type> bias;
     public:
     Linear (Tensor<Type> weights, Tensor<Type> bias)
         : weights{weights}, bias{bias}
@@ -44,6 +44,26 @@ class Linear : public Layer<Type>
 };
 
 template <typename Type>
+class Unflatten :public Layer<Type>
+{
+    private:
+        int input_size;
+        std::vector<int> output_size;
+    public:
+    Unflatten(int input_size, std::vector<int> output_size): input_size(input_size), output_size(output_size)
+    {
+
+    }
+    ~ Unflatten() = default;
+    
+    void forward(Tensor<Type> &input, Tensor<Type> &output) const override
+    {
+        output = Tensor<Type>(output_size[0], output_size[1], output_size[2]);
+        unflatten(input, output);
+    }
+};
+
+template <typename Type>
 class ConvLayer : public Layer <Type>
 {
     private:
@@ -56,9 +76,9 @@ class ConvLayer : public Layer <Type>
         }
         ~ConvLayer() = default;
 
-        void forward (Tensor<Type> &input, Tensor<Type> &out) const  override
+        void forward (Tensor<Type> &input, Tensor<Type> &output) const  override
         {
-            auto inputShape = input.shape();
+            /*auto inputShape = input.shape();
             int x = inputShape[0];
             int  y = inputShape[1];
             int z = inputShape[2];
@@ -77,9 +97,9 @@ class ConvLayer : public Layer <Type>
                         newTensor[newId] = input[oldId];
                     }
                 }
-            }
+            }*/
 
-            conv2d<Type>(newTensor, out, weights, bias);
+            conv2d<Type>(input, output, weights, bias);
         }
 
 };
@@ -102,6 +122,7 @@ class BatchNorm: public Layer <Type>
     void forward (Tensor<Type> &input, Tensor<Type> &output) const  override
 
     {
+        output = Tensor<Type>(input.shape()[0], input.shape()[1], input.shape()[2]);
         batch_norm<Type>(input, output, weights, bias);
     }
 
@@ -137,6 +158,7 @@ class ConvTranspose2D: public Layer <Type>
     private:
         Tensor<Type> weights;
         Tensor<Type> bias = 0;
+        
     public:
     
     ConvTranspose2D(Tensor<Type> weights):weights(weights)
@@ -149,6 +171,12 @@ class ConvTranspose2D: public Layer <Type>
     void forward (Tensor<Type> &input, Tensor<Type> &output) const  override
 
     {
+        int kernel_w = weights.shape()[0];
+        int kernel_h = weights.shape()[1];
+        int input_w = input.shape()[0];
+        int input_h = input.shape()[1];
+
+        output = Tensor<Type>(input_h-1+kernel_h-1 + 1, input_w -1 + kernel_w-1 +1);
         conv_transpose_2d<Type>(input, output, weights, bias);
     }
 

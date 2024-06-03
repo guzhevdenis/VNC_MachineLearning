@@ -65,6 +65,13 @@ void linear_operation (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> c
         }
         
 }
+template <typename Type>
+void unflatten (Tensor<Type> &input, Tensor<Type> &output)
+{
+    std::vector<Type> data = input.data();
+    output.get_data(data);
+}
+
 
 template <typename Type>
 void conv2d (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> const &weight, Tensor<Type> const &bias)
@@ -74,11 +81,13 @@ void conv2d (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> const &weig
     int i_h = inputShape[1];
     int i_f = inputShape[2]; //fmap 
 
+
     auto weightShape = weight.shape();
     int w_w = weightShape[0];
     int w_h = weightShape[1];
     int w_f = weightShape[2]; //fmap
     int w_c = weightShape[3]; //channel 
+
 
     //Вычисление размеров выходного тензора (с шагом прохождения - 1, без паддингов)
     int o_w = i_w - w_w + 1; 
@@ -151,7 +160,7 @@ void batch_norm (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> const &
         Type sum = 0;
         Type mean = 0; 
         Type dispersion = 0;
-        double epsilon = 0.0000001; //для избежания деления на ноль 
+        double epsilon = 1; //для избежания деления на ноль 
 
         //sum = bias[i];
         //Вычисление среднего 
@@ -171,7 +180,7 @@ void batch_norm (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> const &
         {
             for (int k = 0; k < width; k++)
             {
-                dispersion += (input[to1D(i,j,k,width,height)] - mean) * (input[to1D(i,j,k,width,height)] - mean) ; 
+                dispersion += pow((input[to1D(i,j,k,width,height)] - mean), 2); 
             }  
         }
 
@@ -182,7 +191,7 @@ void batch_norm (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> const &
         {
             for (int k = 0; k < width; k++)
             {
-               output[to1D(i,j,k,width, height)] = (input[to1D(i,j,k,width, height)] - mean) / sqrt(dispersion + epsilon); 
+               output[to1D(i,j,k,width, height)] = (input[to1D(i,j,k,width, height)] - mean)/ sqrt(dispersion + epsilon); 
             }  
         }
 
@@ -252,7 +261,8 @@ void conv_transpose_2d (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> 
     int width_output = output.shape()[0];
 
     //Учитываем, что высота и ширина ядра совпадают
-    int kernel_size = weights.shape()[0];
+    int kernel_size_height = weights.shape()[1];
+    int kernel_size_width = weights.shape()[0];
 
     //Идея позаимствована отсюда
     //https://classic.d2l.ai/chapter_computer-vision/transposed-conv.html
@@ -262,11 +272,11 @@ void conv_transpose_2d (Tensor<Type> &input, Tensor<Type> &output, Tensor<Type> 
     {
             for (int m = 0; m < height_input; m++) //Проход по высоте входного 
             {
-                    for (int i = 0; i < kernel_size; i++) //Проход по ширине ядра
+                    for (int i = 0; i < kernel_size_width; i++) //Проход по ширине ядра
                     {
-                            for (int j = 0; j < kernel_size; j++) //Проход по высоте ядра
+                            for (int j = 0; j < kernel_size_height; j++) //Проход по высоте ядра
                             {
-                                output[to1D(i+k,j+m,width_output)] += input[to1D(i,j, width_input)]*weights[to1D(k,m, kernel_size)];
+                                output[to1D(i+k,j+m,width_output)] += input[to1D(i,j, width_input)]*weights[to1D(k,m, kernel_size_height)];
                             }
                     }
             }
